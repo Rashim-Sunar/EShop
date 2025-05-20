@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -52,12 +53,22 @@ fun Signup(navController: NavHostController) {
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(
-                    text = "Create an account",
-                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = 26.sp),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+               Column {
+                   Text(
+                       text = "Hello there!",
+                       style = MaterialTheme.typography.headlineSmall.copy(fontSize = 30.sp),
+                       fontWeight = FontWeight.Bold,
+                       textAlign = TextAlign.Start,
+                       modifier = Modifier.fillMaxWidth()
+                   )
+
+                   Text(
+                       text = "Create your account",
+                       style = MaterialTheme.typography.headlineSmall.copy(fontSize = 18.sp),
+                       textAlign = TextAlign.Start,
+                       modifier = Modifier.fillMaxWidth()
+                   )
+               }
 
                 OutlinedTextField(
                     value = name,

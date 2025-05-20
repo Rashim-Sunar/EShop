@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -38,6 +39,7 @@ fun Login(navController: NavHostController) {
             .background(Color(0xFFF5F5F5)),
         contentAlignment = Alignment.Center
     ) {
+
         Card(
             modifier = Modifier
                 .padding(20.dp)
@@ -52,22 +54,23 @@ fun Login(navController: NavHostController) {
                     .fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
-                Text(
-                    text = "Login",
-                    style = MaterialTheme.typography.headlineSmall.copy(fontSize = 26.sp),
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
+                Column {
+                    Text(
+                        text = "Welcome back!",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontSize = 30.sp),
+                        fontWeight = FontWeight.SemiBold,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    )
 
-                OutlinedTextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Full Name") },
-                    placeholder = { Text("Enter your name") },
-                    leadingIcon = { Icon(Icons.Filled.Person, contentDescription = null) },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true
-                )
+                    Text(
+                        text = "Signin to you account",
+                        style = MaterialTheme.typography.headlineSmall.copy(fontSize = 18.sp),
+                        fontWeight = FontWeight.Normal,
+                        textAlign = TextAlign.Start,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
 
                 OutlinedTextField(
                     value = email,
