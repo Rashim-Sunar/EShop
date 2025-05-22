@@ -35,7 +35,7 @@ fun AuthScreen(navController: NavHostController) {
         verticalArrangement = Arrangement.Center
     ){
         Image(
-            painter = painterResource(id = R.drawable.epicanime),
+            painter = painterResource(id = R.drawable.logo),
             contentDescription = "Banner image",
             modifier = Modifier.fillMaxWidth().height(300.dp)
         )

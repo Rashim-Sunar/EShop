@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -23,15 +24,20 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.easyshop.AppUtil
+import com.example.easyshop.viewmodel.AuthViewModel
 
 @Composable
-fun Signup(navController: NavHostController) {
+fun Signup(navController: NavHostController, authViewModel: AuthViewModel = viewModel()) {
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+
+    val context = LocalContext.current
 
     Box(
         modifier = Modifier
@@ -115,7 +121,13 @@ fun Signup(navController: NavHostController) {
 
                 Button(
                     onClick = {
-                        // TODO: Add your login logic here
+                        authViewModel.signup(name, email, password){ success, errorMessage ->
+                            if(success){
+
+                            }else{
+                                AppUtil.showToast(context, errorMessage?:"Something went wrong!")
+                            }
+                        }
                     },
                     modifier = Modifier.fillMaxWidth().height(44.dp),
                     shape = RoundedCornerShape(10.dp)
