@@ -38,6 +38,7 @@ fun Signup(navController: NavHostController, authViewModel: AuthViewModel = view
     var passwordVisible by remember { mutableStateOf(false) }
 
     val context = LocalContext.current
+    var isLoading by remember { mutableStateOf(false)}
 
     Box(
         modifier = Modifier
@@ -121,18 +122,25 @@ fun Signup(navController: NavHostController, authViewModel: AuthViewModel = view
 
                 Button(
                     onClick = {
+                        isLoading = true
                         authViewModel.signup(name, email, password){ success, errorMessage ->
                             if(success){
+                                isLoading = false
+                                navController.navigate("home"){
+                                    popUpTo("auth"){inclusive = true} // popup all the routes including auth
+                                }
 
                             }else{
+                                isLoading = false
                                 AppUtil.showToast(context, errorMessage?:"Something went wrong!")
                             }
                         }
                     },
+                    enabled = !isLoading,
                     modifier = Modifier.fillMaxWidth().height(44.dp),
                     shape = RoundedCornerShape(10.dp)
                 ) {
-                    Text(text = "Signup")
+                    Text(text = if(isLoading) "Creating account" else "Signup")
                 }
 
                 Column(

@@ -10,8 +10,17 @@ class AuthViewModel : ViewModel() {
     private val auth = Firebase.auth
     private val firestore = Firebase.firestore
 
-    fun login(){
-
+    fun login(email: String, password: String, onResult : (Boolean, String?)-> Unit){
+        auth.signInWithEmailAndPassword(email, password)
+            .addOnCompleteListener { task ->
+                if(task.isSuccessful){
+                    // Sign in success, navigate to home screen
+                    onResult(true, null)
+                }else{
+                    // If sign in fails, display a message to the user.
+                    onResult(false, "Authentication failed")
+                }
+            }
     }
 
     fun signup(name: String, email: String, password: String, onResult : (Boolean, String?)-> Unit){
