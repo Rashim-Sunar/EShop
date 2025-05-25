@@ -67,4 +67,7 @@ dependencies {
     implementation("androidx.navigation:navigation-compose:$navVersion")
 
     implementation("androidx.compose.material:material-icons-extended")
+
+//    To use the BottomNavigation and BottomNavigationItem components, add the androidx.compose.material dependency to your Android application.
+    implementation("androidx.compose.material:material:1.8.2")
 }
