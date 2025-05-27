@@ -70,4 +70,10 @@ dependencies {
 
 //    To use the BottomNavigation and BottomNavigationItem components, add the androidx.compose.material dependency to your Android application.
     implementation("androidx.compose.material:material:1.8.2")
+
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")             // Compose bindings
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")     // HTTP support via OkHttp
+
+    implementation("com.tbuonomo:dotsindicator:5.1.0") // For dotsindicator
+
 }

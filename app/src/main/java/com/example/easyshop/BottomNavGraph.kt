@@ -24,13 +24,10 @@ fun BottomNavGraph(
         startDestination = "homePage",
         modifier = Modifier.padding(paddingValues) // optional modifier if needed
     ) {
-        composable(route = "homePage") { HomePage(parentNavController) }
+        composable(route = "homePage") { HomePage() }
         composable(route = "favouritePage") { FavouritePage() }
         composable(route = "cartPage") { CartPage() }
-        composable(route = "profilePage") { ProfilePage() }
+        composable(route = "profilePage") { ProfilePage(parentNavController) }
     }
-
-
-
 }
 
