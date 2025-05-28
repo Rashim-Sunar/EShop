@@ -1,5 +1,6 @@
 package com.example.easyshop
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
@@ -9,16 +10,17 @@ import androidx.navigation.compose.NavHost
 import com.example.easyshop.pages.HomePage
 import androidx.navigation.compose.composable
 import com.example.easyshop.pages.CartPage
+import com.example.easyshop.pages.CategoryProductsPage
 import com.example.easyshop.pages.FavouritePage
 import com.example.easyshop.pages.ProfilePage
-
-
 @Composable
 fun BottomNavGraph(
     parentNavController: NavHostController,
     navController: NavHostController,
     paddingValues: PaddingValues
 ){
+    GlobalNavController.navController = navController
+
     NavHost(
         navController = navController,
         startDestination = "homePage",
@@ -28,6 +30,14 @@ fun BottomNavGraph(
         composable(route = "favouritePage") { FavouritePage() }
         composable(route = "cartPage") { CartPage() }
         composable(route = "profilePage") { ProfilePage(parentNavController) }
+        composable(route = "categoryProducts/{categoryId}") {
+            val categoryId = it.arguments?.getString("categoryId")
+            CategoryProductsPage(categoryId)
+        }
     }
+}
+object GlobalNavController{
+    @SuppressLint("StaticFieldLeak")
+    lateinit var navController: NavHostController
 }
 
