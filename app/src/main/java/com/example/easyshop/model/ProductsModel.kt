@@ -7,5 +7,6 @@ data class ProductsModel(
     val actualPrice: String = "",
     val category:  String = "",
     val description: String = "",
-    val images: List<String> = emptyList()
+    val images: List<String> = emptyList(),
+    val otherDetails: Map<String, String> = emptyMap()
 )

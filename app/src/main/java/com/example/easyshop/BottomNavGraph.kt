@@ -9,9 +9,11 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.example.easyshop.pages.HomePage
 import androidx.navigation.compose.composable
+import com.example.easyshop.model.ProductsModel
 import com.example.easyshop.pages.CartPage
 import com.example.easyshop.pages.CategoryProductsPage
 import com.example.easyshop.pages.FavouritePage
+import com.example.easyshop.pages.ProductDetailsPage
 import com.example.easyshop.pages.ProfilePage
 @Composable
 fun BottomNavGraph(
@@ -33,6 +35,11 @@ fun BottomNavGraph(
         composable(route = "categoryProducts/{categoryId}") {
             val categoryId = it.arguments?.getString("categoryId")
             CategoryProductsPage(categoryId)
+        }
+
+        composable(route = "productDetailsPage/{productId}") {
+            val productId = it.arguments?.getString("productId")
+            ProductDetailsPage(productId)
         }
     }
 }
