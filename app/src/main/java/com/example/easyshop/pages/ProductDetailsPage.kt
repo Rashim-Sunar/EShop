@@ -1,6 +1,5 @@
 package com.example.easyshop.pages
 
-import android.R
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,13 +29,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.Font
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.example.easyshop.AppUtil
 import com.example.easyshop.model.ProductsModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -50,6 +50,8 @@ fun ProductDetailsPage(productId: String?) {
     }
 
     val productDetails = remember { mutableStateOf<ProductsModel?>(null) }
+
+    val context = LocalContext.current
 
     LaunchedEffect(productId) {
         try {
@@ -133,7 +135,9 @@ fun ProductDetailsPage(productId: String?) {
             ) {
                 Button(
                     modifier = Modifier.fillMaxWidth(0.8f),
-                    onClick = {},
+                    onClick = {
+                        AppUtil.addToCart(context = context, productId = productId)
+                    },
                     elevation = ButtonDefaults.buttonElevation()
                 ) {
                     Text(

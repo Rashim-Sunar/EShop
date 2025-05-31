@@ -23,15 +23,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import com.example.easyshop.AppUtil
 import com.example.easyshop.GlobalNavController
 import com.example.easyshop.model.ProductsModel
 
 @Composable
 fun ProductItemsView(product: ProductsModel, modifier: Modifier) {
+
+    val context = LocalContext.current
+
     Card(
         modifier = modifier
             .padding(8.dp)
@@ -87,7 +92,9 @@ fun ProductItemsView(product: ProductsModel, modifier: Modifier) {
                     )
 
                     IconButton(
-                        onClick = {}
+                        onClick = {
+                            AppUtil.addToCart(context = context, productId = product.id)
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
