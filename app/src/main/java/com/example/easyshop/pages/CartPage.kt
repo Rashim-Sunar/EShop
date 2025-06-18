@@ -1,7 +1,9 @@
 package com.example.easyshop.pages
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -49,6 +51,8 @@ fun CartPage(){
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
         )
+
+        Spacer(modifier = Modifier.height(12.dp))
 
         LazyColumn {
             items(userModel.value.cartItems.toList(), key = {it.first}){(productId, quantity) ->
