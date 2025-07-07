@@ -21,7 +21,7 @@ object AppUtil {
 
         userDoc.get().addOnCompleteListener { it ->
             if (it.isSuccessful){
-                val cartItem = it.result.get("cartItems") as? Map<String, Long> ?: emptyMap()
+                val cartItem = it.result.get("cartItems") as? Map<String, Long> ?: emptyMap() // Map productId to quantity
                 val currentQuantity = cartItem[productId] ?: 0
                 val updatedQuantity = currentQuantity + 1
 
@@ -36,4 +36,45 @@ object AppUtil {
             }
         }
     }
+
+    fun updateCartQuantity(productId: String?, quantity: Long, context: Context) {
+        val userId = Firebase.auth.currentUser?.uid
+        if (productId.isNullOrEmpty() || userId.isNullOrEmpty()) return
+
+        val userDoc = Firebase.firestore.collection("users").document(userId)
+
+        userDoc.update("cartItems.$productId", quantity)
+            .addOnSuccessListener {
+                showToast(context, "Quantity updated in cart!")
+            }
+            .addOnFailureListener {
+                showToast(context, "Failed to update quantity.")
+            }
+    }
+
+
+    fun calculateTotalPrice(price: String, quantity: Long) : String{
+        val cleanPrice = price.replace(",", "")
+        val price = cleanPrice.toIntOrNull() ?: 0 // Safely parse to int
+        val total = price*quantity
+
+        // Format back with commas
+        return "%,d".format(total)
+    }
+
+    fun calculateDiscount(price: String, actualPrice: String): String {
+        val cleanPrice = price.replace(",", "")
+        val cleanActualPrice = actualPrice.replace(",", "")
+
+        val priceInt = cleanPrice.toIntOrNull() ?: return "0%"
+        val actualPriceInt = cleanActualPrice.toIntOrNull() ?: return "0%"
+
+        if (actualPriceInt >= priceInt) return "0%" // No discount
+
+        val discount = priceInt - actualPriceInt
+        val percentage = (discount.toDouble() / priceInt.toDouble()) * 100
+
+        return "${percentage.toInt()}%"  // Rounded down to nearest integer
+    }
+
 }

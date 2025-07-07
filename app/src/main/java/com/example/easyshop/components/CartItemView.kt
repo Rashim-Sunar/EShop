@@ -10,12 +10,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import coil3.request.Disposable
+import com.example.easyshop.AppUtil
 import com.example.easyshop.model.ProductsModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -30,23 +33,32 @@ fun CartItemView(productId: String, quantity: Long) {
     val selectedQuantity = remember { mutableLongStateOf(quantity) }
     val quantityDropDownList = listOf("1", "2", "3", "more")
 
-    LaunchedEffect(productId) {
-        try {
-            val snapshot = Firebase.firestore.collection("data")
-                .document("stock")
-                .collection("products")
-                .document(productId)
-                .get()
-                .await()
+    // For custom popUp
+    val showCustomQtyDialog = remember { mutableStateOf(false) }
+    val customQtyInput = remember { mutableStateOf("") }
 
-            val result = snapshot.toObject(ProductsModel::class.java)
-            if (result != null) {
-                productDetail.value = result
-            } else {
-                Log.d("CartItemView", "Fetched null product detail...")
+    val context = LocalContext.current
+
+    DisposableEffect(productId) {
+        val listenerRegistration = Firebase.firestore.collection("data")
+            .document("stock")
+            .collection("products")
+            .document(productId)
+            .addSnapshotListener { snapshot, error ->  // snapshotListener for getting realtime data on snapshot or data change
+                if (error != null) {
+                    Log.w("CartItemView", "Error fetching product details", error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot != null && snapshot.exists()) {
+                    productDetail.value = snapshot.toObject(ProductsModel::class.java)
+                } else {
+                    Log.d("CartItemView", "Product not found or null snapshot.")
+                }
             }
-        } catch (e: Exception) {
-            Log.d("CartItemView", "Error fetching product detail with productId: ${e.message}")
+
+        onDispose {
+            listenerRegistration.remove() // Detach a listener
         }
     }
 
@@ -96,7 +108,15 @@ fun CartItemView(productId: String, quantity: Long) {
                                 DropdownMenuItem(
                                     text = { Text(item, fontSize = 14.sp) },
                                     onClick = {
-                                        selectedQuantity.longValue = item.toLongOrNull() ?: selectedQuantity.longValue
+                                        if(item == "more") {
+                                            showCustomQtyDialog.value = true
+                                        }else{
+                                            val newQty = item.toLongOrNull()
+                                            if(newQty != null){
+                                                selectedQuantity.longValue = item.toLongOrNull() ?: selectedQuantity.longValue
+                                                AppUtil.updateCartQuantity(productId, newQty, context)
+                                            }
+                                        }
                                         isDropdownExpanded.value = false
                                     }
                                 )
@@ -121,7 +141,7 @@ fun CartItemView(productId: String, quantity: Long) {
 
                     Row {
                         Text(
-                            text = "$${product.price}",
+                            text = "$${AppUtil.calculateTotalPrice(product.price, selectedQuantity.longValue)}",
                             textDecoration = TextDecoration.LineThrough,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -129,7 +149,7 @@ fun CartItemView(productId: String, quantity: Long) {
                         )
 
                         Text(
-                            text = "  $${product.actualPrice}",
+                            text = "  $${AppUtil.calculateTotalPrice(product.actualPrice, selectedQuantity.longValue)}",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -146,7 +166,7 @@ fun CartItemView(productId: String, quantity: Long) {
                         )
 
                         Text(
-                            text = "54%",
+                            text = AppUtil.calculateDiscount(product.price, product.actualPrice),
                             color = Color(66,161,85),
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp
@@ -165,4 +185,64 @@ fun CartItemView(productId: String, quantity: Long) {
             HorizontalDivider()
         }
     }
+
+    CustomQuantityDialog(
+        showDialog = showCustomQtyDialog.value,
+        currentInput = customQtyInput.value,
+        onInputChange = { customQtyInput.value = it },
+        onConfirm = {
+            val customQty = customQtyInput.value.toLongOrNull()
+            if (customQty != null && customQty > 0) {
+                selectedQuantity.longValue = customQty
+                AppUtil.updateCartQuantity(productId, customQty, context)
+            }
+            showCustomQtyDialog.value = false
+            customQtyInput.value = ""
+        },
+        onDismiss = {
+            showCustomQtyDialog.value = false
+            customQtyInput.value = ""
+        }
+    )
+
 }
+
+// ui for popUp to change the quantity
+@Composable
+fun CustomQuantityDialog(
+    showDialog: Boolean,
+    currentInput: String,
+    onInputChange: (String) -> Unit,
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit
+) {
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = onDismiss,
+            confirmButton = {
+                TextButton(onClick = onConfirm) {
+                    Text("OK")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = onDismiss) {
+                    Text("Cancel")
+                }
+            },
+            title = { Text("Enter Quantity") },
+            text = {
+                OutlinedTextField(
+                    value = currentInput,
+                    onValueChange = {
+                        if (it.all { ch -> ch.isDigit() }) {
+                            onInputChange(it)
+                        }
+                    },
+                    label = { Text("Quantity") },
+                    singleLine = true
+                )
+            }
+        )
+    }
+}
+
