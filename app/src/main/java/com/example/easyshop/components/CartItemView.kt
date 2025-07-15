@@ -1,15 +1,21 @@
 package com.example.easyshop.components
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDownward
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
@@ -17,12 +23,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import coil3.request.Disposable
 import com.example.easyshop.AppUtil
 import com.example.easyshop.model.ProductsModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
-import kotlinx.coroutines.tasks.await
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,8 +72,7 @@ fun CartItemView(productId: String, quantity: Long) {
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
-//                verticalAlignment = Alignment.CenterVertically
+                modifier = Modifier.fillMaxWidth()
             ) {
 
                 Column {
@@ -83,7 +86,7 @@ fun CartItemView(productId: String, quantity: Long) {
                     )
 
                     // Quantity Row
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(2.dp))
 
                     // Dropdown for quantity
                     Box {
@@ -154,7 +157,7 @@ fun CartItemView(productId: String, quantity: Long) {
                             fontWeight = FontWeight.SemiBold
                         )
                     }
-
+2
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row{
@@ -178,11 +181,57 @@ fun CartItemView(productId: String, quantity: Long) {
                             modifier = Modifier.size(24.dp),
                         )
                     }
-
                 }
             }
 
-            HorizontalDivider()
+            // row for remove from cart and order button
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 4.dp), // reduces space above and below the row
+                verticalAlignment = Alignment.CenterVertically,
+//                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                // Remove Button
+                TextButton(
+                    onClick = {
+                        AppUtil.removeFromCart(productId, context)
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color.Red),
+                    border = _root_ide_package_.androidx.compose.foundation.BorderStroke(1.dp, Color.Gray),
+                    shape = RoundedCornerShape(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Remove",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Remove")
+                }
+
+                // Order Now Button
+                TextButton(
+                    onClick = {
+                        AppUtil.showToast(context, "Item order!!!!")
+                    },
+                    modifier = Modifier.weight(1f),
+                    colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF2E7D32)),
+                    border = _root_ide_package_.androidx.compose.foundation.BorderStroke(1.dp, Color.Gray),
+                    shape = RoundedCornerShape(0.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingCart,
+                        contentDescription = "Order Now",
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Order Now")
+                }
+            }
+            Spacer(modifier = Modifier.height(6.dp))
+
         }
     }
 
@@ -245,4 +294,5 @@ fun CustomQuantityDialog(
         )
     }
 }
+
 

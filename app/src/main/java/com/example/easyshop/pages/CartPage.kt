@@ -1,5 +1,6 @@
 package com.example.easyshop.pages
 
+import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.easyshop.components.CartItemView
+import com.example.easyshop.model.ProductsModel
 import com.example.easyshop.model.UserModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -30,15 +32,23 @@ fun CartPage(){
     }
 
     LaunchedEffect(Unit) {
+        val userId: String = Firebase.auth.currentUser?.uid  ?: return@LaunchedEffect
+
         Firebase.firestore.collection("users")
-            .document(Firebase.auth.currentUser!!.uid)
-            .get()
-            .addOnCompleteListener {
-                if(it.isSuccessful){
-                    val result = it.result.toObject(UserModel::class.java)
+            .document(userId)
+            .addSnapshotListener { snapshot, error ->
+                if (error != null || snapshot == null){
+                    Log.w("CartItemView", "Error fetching product details", error)
+                    return@addSnapshotListener
+                }
+
+                if (snapshot.exists()) {
+                   val result = snapshot.toObject(UserModel::class.java)
                     if (result != null) {
                         userModel.value = result
                     }
+                } else {
+                    Log.d("CartPage", "Products not found or null snapshot.")
                 }
             }
     }

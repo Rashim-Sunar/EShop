@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.firestore
 
 object AppUtil {
@@ -52,6 +53,20 @@ object AppUtil {
             }
     }
 
+    fun removeFromCart(productId: String?, context: Context){
+        val userId = Firebase.auth.currentUser?.uid
+        if(productId.isNullOrEmpty() || userId.isNullOrEmpty()) return
+
+        val userDoc = Firebase.firestore.collection("users").document(userId)
+
+        userDoc.update("cartItems.$productId", FieldValue.delete())
+            .addOnSuccessListener {
+                showToast(context, "Item removed from the cart")
+            }
+            .addOnFailureListener {
+                showToast(context, "Failed to remove item from cart!")
+            }
+    }
 
     fun calculateTotalPrice(price: String, quantity: Long) : String{
         val cleanPrice = price.replace(",", "")
@@ -76,5 +91,4 @@ object AppUtil {
 
         return "${percentage.toInt()}%"  // Rounded down to nearest integer
     }
-
 }
