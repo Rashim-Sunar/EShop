@@ -68,13 +68,13 @@ object AppUtil {
             }
     }
 
-    fun calculateTotalPrice(price: String, quantity: Long) : String{
+    fun calculateTotalPrice(price: String, quantity: Long, plateFormFee: Int = 0) : String{
         val cleanPrice = price.replace(",", "")
         val price = cleanPrice.toIntOrNull() ?: 0 // Safely parse to int
         val total = price*quantity
 
         // Format back with commas
-        return "%,d".format(total)
+        return "%,d".format(total + plateFormFee)
     }
 
     fun calculateDiscount(price: String, actualPrice: String): String {
@@ -90,5 +90,12 @@ object AppUtil {
         val percentage = (discount.toDouble() / priceInt.toDouble()) * 100
 
         return "${percentage.toInt()}%"  // Rounded down to nearest integer
+    }
+
+    fun calculateDiscountAmount(price: String, actualPrice: String): String{
+        val cleanPrice = price.replace(",","").toIntOrNull() ?: return "0"
+        val cleanActualPrice = actualPrice.replace(",", "").toIntOrNull() ?: return "0"
+
+        return "${cleanPrice - cleanActualPrice}"
     }
 }

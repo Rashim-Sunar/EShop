@@ -15,6 +15,7 @@ import com.example.easyshop.pages.CategoryProductsPage
 import com.example.easyshop.pages.FavouritePage
 import com.example.easyshop.pages.ProductDetailsPage
 import com.example.easyshop.pages.ProfilePage
+import com.example.easyshop.pages.CheckoutPage
 @Composable
 fun BottomNavGraph(
     parentNavController: NavHostController,
@@ -40,6 +41,12 @@ fun BottomNavGraph(
         composable(route = "productDetailsPage/{productId}") {
             val productId = it.arguments?.getString("productId")
             ProductDetailsPage(productId)
+        }
+
+        composable("checkout/{productId}/{quantity}") { backStackEntry ->
+            val productId = backStackEntry.arguments?.getString("productId") ?: ""
+            val quantity = backStackEntry.arguments?.getString("quantity")?.toLongOrNull() ?: 1L
+            CheckoutPage(productId = productId, quantity = quantity)
         }
     }
 }

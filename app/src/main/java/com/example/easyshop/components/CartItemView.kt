@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.example.easyshop.AppUtil
+import com.example.easyshop.GlobalNavController
 import com.example.easyshop.model.ProductsModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -214,7 +215,7 @@ fun CartItemView(productId: String, quantity: Long) {
                 // Order Now Button
                 TextButton(
                     onClick = {
-                        AppUtil.showToast(context, "Item order!!!!")
+                        GlobalNavController.navController.navigate("checkout/$productId/${selectedQuantity.longValue}")
                     },
                     modifier = Modifier.weight(1f),
                     colors = ButtonDefaults.textButtonColors(contentColor = Color(0xFF2E7D32)),
