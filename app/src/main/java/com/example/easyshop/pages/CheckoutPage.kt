@@ -36,11 +36,15 @@ import coil3.compose.AsyncImage
 import com.example.easyshop.AppUtil
 import com.example.easyshop.components.HorizontalDashedDivider
 import com.example.easyshop.model.ProductsModel
+import com.example.easyshop.viewmodel.CheckoutViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.easyshop.model.CartItemModel
+import com.example.easyshop.model.CheckoutModel
 
 @Composable
-fun CheckoutPage(productId: String, quantity: Long) {
+fun CheckoutPage(productId: String, quantity: Long, checkoutViewModel : CheckoutViewModel = viewModel()) {
     val context = LocalContext.current
     val productDetail = remember { mutableStateOf<ProductsModel?>(null) }
 
@@ -48,6 +52,7 @@ fun CheckoutPage(productId: String, quantity: Long) {
     val address = remember { mutableStateOf("") }
     val phone = remember { mutableStateOf("") }
     val customerName = remember { mutableStateOf("") }
+    val placingOrder = remember{mutableStateOf(false)}
 
     // Fetch product details from Firebase
     LaunchedEffect(productId) {
@@ -137,19 +142,47 @@ fun CheckoutPage(productId: String, quantity: Long) {
                 onNameChange = {customerName.value = it}
             )
 
-
             Spacer(modifier = Modifier.height(24.dp))
 
             // ---------------------- Order Button ------------------------------------------
 
             Button(
                 onClick = {
-                    AppUtil.showToast(context, "Order placed successfully!")
+                    placingOrder.value = true
+
+                    val cartItem = CartItemModel(
+                        productId = productId,
+                        name = product.title,
+                        price = product.actualPrice,
+                        quantity = quantity.toInt()
+                    )
+
+                    val totalAmount = AppUtil.calculateTotalPrice(product.actualPrice, quantity, 10)
+
+                    val order = CheckoutModel(
+                        userId = "", // Will be set in ViewModel
+                        item = listOf(cartItem),
+                        totalAmount = totalAmount,
+                        address = address.value,
+                        timestamp = System.currentTimeMillis()
+                    )
+
+                    checkoutViewModel.placeOrder(order) { success, error ->
+                        placingOrder.value = false
+                        if (success) {
+                            AppUtil.showToast(context, "Order placed successfully!")
+                            // Navigate to another screen if needed
+                        } else {
+                            AppUtil.showToast(context, error ?: "Something went wrong.")
+                        }
+                    }
                 },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !placingOrder.value
             ) {
-                Text("Place Order")
+                Text(if (placingOrder.value) "Placing Order...." else "Place Order")
             }
+
         }
     } ?: run {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
