@@ -40,6 +40,7 @@ import com.example.easyshop.viewmodel.CheckoutViewModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.easyshop.GlobalNavController.navController
 import com.example.easyshop.model.CartItemModel
 import com.example.easyshop.model.CheckoutModel
 
@@ -172,6 +173,7 @@ fun CheckoutPage(productId: String, quantity: Long, checkoutViewModel : Checkout
                         if (success) {
                             AppUtil.showToast(context, "Order placed successfully!")
                             // Navigate to another screen if needed
+                            navController.navigate("order_success/${totalAmount}")
                         } else {
                             AppUtil.showToast(context, error ?: "Something went wrong.")
                         }

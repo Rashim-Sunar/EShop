@@ -9,13 +9,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import com.example.easyshop.pages.HomePage
 import androidx.navigation.compose.composable
-import com.example.easyshop.model.ProductsModel
 import com.example.easyshop.pages.CartPage
 import com.example.easyshop.pages.CategoryProductsPage
 import com.example.easyshop.pages.FavouritePage
 import com.example.easyshop.pages.ProductDetailsPage
 import com.example.easyshop.pages.ProfilePage
 import com.example.easyshop.pages.CheckoutPage
+import com.example.easyshop.screen.OrderSuccessScreen
+
 @Composable
 fun BottomNavGraph(
     parentNavController: NavHostController,
@@ -47,6 +48,11 @@ fun BottomNavGraph(
             val productId = backStackEntry.arguments?.getString("productId") ?: ""
             val quantity = backStackEntry.arguments?.getString("quantity")?.toLongOrNull() ?: 1L
             CheckoutPage(productId = productId, quantity = quantity)
+        }
+
+        composable("order_success/{amount}") { backStackEntry ->
+            val amount = backStackEntry.arguments?.getString("amount") ?: ""
+            OrderSuccessScreen(totalAmount = amount)
         }
     }
 }
