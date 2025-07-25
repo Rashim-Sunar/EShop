@@ -33,30 +33,36 @@ fun Home(parentNavController: NavHostController){
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
-                val currentDestination = navBackStackEntry?.destination
-                topLevelRoutes.forEach { topLevelRoute ->
-                    NavigationBarItem(
-                        icon = { Icon(topLevelRoute.icon, contentDescription = topLevelRoute.name) },
-                        label = { Text(topLevelRoute.name) },
-                        selected = currentDestination?.route == topLevelRoute.route,
-                        onClick = {
-                            bottomNavController.navigate(topLevelRoute.route) {
-                                // Pop up to the start destination of the graph to
-                                // avoid building up a large stack of destinations
-                                // on the back stack as users select items
-                                popUpTo(bottomNavController.graph.findStartDestination().id) {
-                                    saveState = true
+            val navBackStackEntry by bottomNavController.currentBackStackEntryAsState()
+            val currentDestination = navBackStackEntry?.destination
+            //ensure bottom navigationBar only shown for below routes
+            if(currentDestination?.route == "homePage" || currentDestination?.route == "favouritePage"
+                || currentDestination?.route == "cartPage" || currentDestination?.route == "profilePage"
+            ){
+
+                NavigationBar {
+                    topLevelRoutes.forEach { topLevelRoute ->
+                        NavigationBarItem(
+                            icon = { Icon(topLevelRoute.icon, contentDescription = topLevelRoute.name) },
+                            label = { Text(topLevelRoute.name) },
+                            selected = currentDestination.route == topLevelRoute.route,
+                            onClick = {
+                                bottomNavController.navigate(topLevelRoute.route) {
+                                    // Pop up to the start destination of the graph to
+                                    // avoid building up a large stack of destinations
+                                    // on the back stack as users select items
+                                    popUpTo(bottomNavController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    // Avoid multiple copies of the same destination when
+                                    // re-selecting the same item
+                                    launchSingleTop = true
+                                    // Restore state when re-selecting a previously selected item
+                                    restoreState = true
                                 }
-                                // Avoid multiple copies of the same destination when
-                                // reselecting the same item
-                                launchSingleTop = true
-                                // Restore state when reselecting a previously selected item
-                                restoreState = true
                             }
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -68,7 +74,6 @@ fun Home(parentNavController: NavHostController){
         )
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable
