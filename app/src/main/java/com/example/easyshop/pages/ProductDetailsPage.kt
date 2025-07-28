@@ -117,7 +117,9 @@ fun ProductDetailsPage(productId: String?) {
                }
 
                 IconButton(
-                    onClick = {}
+                    onClick = {
+                        AppUtil.addToFavorite( productId = productId,context = context)
+                    }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Favorite,

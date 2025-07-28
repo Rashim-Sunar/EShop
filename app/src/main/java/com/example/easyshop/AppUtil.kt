@@ -1,6 +1,7 @@
 package com.example.easyshop
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
@@ -36,6 +37,20 @@ object AppUtil {
                     }
             }
         }
+    }
+
+    fun addToFavorite(productId: String?, context: Context){
+        val userDoc = Firebase.firestore.collection("users")
+            .document(Firebase.auth.currentUser!!.uid)
+
+        userDoc.update("favorites", FieldValue.arrayUnion(productId))
+            .addOnSuccessListener {
+                showToast(context, "Item added to favorites")
+            }
+            .addOnFailureListener { e ->
+                Log.e("Favorites", "Error adding itm", e)
+                showToast(context, "Error adding item to favorites")
+            }
     }
 
     fun updateCartQuantity(productId: String?, quantity: Long, context: Context) {
@@ -92,7 +107,7 @@ object AppUtil {
         return "${percentage.toInt()}%"  // Rounded down to nearest integer
     }
 
-    fun calculateDiscountAmount(price: String, actualPrice: String): String{
+    fun calculateDiscountAmount(price: String, actualPrice: String): String{  Firebase.firestore.collection("users")
         val cleanPrice = price.replace(",","").toIntOrNull() ?: return "0"
         val cleanActualPrice = actualPrice.replace(",", "").toIntOrNull() ?: return "0"
 
