@@ -2,6 +2,7 @@ package com.example.easyshop.components
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -39,6 +40,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.example.easyshop.AppUtil
+import com.example.easyshop.GlobalNavController
 import com.example.easyshop.model.ProductsModel
 import com.google.firebase.Firebase
 import com.google.firebase.firestore.firestore
@@ -73,7 +75,8 @@ fun FavouriteItemView(productId: String) {
         Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(12.dp)
+                .clickable{ GlobalNavController.navController.navigate("productDetailsPage/$productId")},
             elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
             colors = CardDefaults.cardColors(Color.White),
             shape = RoundedCornerShape(12.dp)
@@ -159,7 +162,7 @@ fun FavouriteItemView(productId: String) {
                 ) {
                     OutlinedButton(
                         onClick = {
-                            AppUtil.showToast(context, "Item removed from favourite")
+                            AppUtil.removeFromFavorite(productId, context)
                         },
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red),
                         border = BorderStroke(1.dp, Color.Red),
@@ -176,7 +179,7 @@ fun FavouriteItemView(productId: String) {
 
                     Button(
                         onClick = {
-                            AppUtil.showToast(context, "Item added to cart")
+                            AppUtil.addToCart(productId, context)
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF2E7D32)),
                         shape = RoundedCornerShape(8.dp)
@@ -187,7 +190,7 @@ fun FavouriteItemView(productId: String) {
                             modifier = Modifier.size(18.dp)
                         )
                         Spacer(modifier = Modifier.width(6.dp))
-                        Text("Order Now")
+                        Text("Add to cart")
                     }
                 }
             }

@@ -53,6 +53,20 @@ object AppUtil {
             }
     }
 
+    fun removeFromFavorite(productId: String?, context: Context){
+        val userDoc = Firebase.firestore.collection("users")
+            .document(Firebase.auth.currentUser!!.uid)
+
+        userDoc.update("favorites", FieldValue.arrayRemove(productId))
+            .addOnSuccessListener {
+                showToast(context, "Item removed from favourites")
+            }
+            .addOnFailureListener { error ->
+                Log.e("favorites", "Error removing item from favourites", error)
+                showToast(context, "Error removing item from favourites")
+            }
+    }
+
     fun updateCartQuantity(productId: String?, quantity: Long, context: Context) {
         val userId = Firebase.auth.currentUser?.uid
         if (productId.isNullOrEmpty() || userId.isNullOrEmpty()) return

@@ -133,53 +133,56 @@ fun CartItemView(productId: String, quantity: Long) {
                 Spacer(modifier = Modifier.width(12.dp))
 
                 // Product Title and Price Details
-                Column(modifier = Modifier.weight(1f)) {
-
-                    Spacer(modifier = Modifier.height(10.dp))
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     Text(
                         text = product.title,
+                        style = MaterialTheme.typography.titleMedium,
                         maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        style = MaterialTheme.typography.titleMedium.copy(fontSize = 16.sp)
+                        overflow = TextOverflow.Ellipsis
                     )
 
-                    Row {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "$${AppUtil.calculateTotalPrice(product.price, selectedQuantity.longValue)}",
-                            textDecoration = TextDecoration.LineThrough,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color.DarkGray
+                            text = "₹${product.price}",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                textDecoration = TextDecoration.LineThrough,
+                                color = Color.Gray
+                            )
                         )
-
+                        Spacer(modifier = Modifier.width(6.dp))
                         Text(
-                            text = "  $${AppUtil.calculateTotalPrice(product.actualPrice, selectedQuantity.longValue)}",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold
+                            text = "₹${product.actualPrice}",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                fontWeight = FontWeight.Bold
+                            )
                         )
                     }
-2
-                    Spacer(modifier = Modifier.height(12.dp))
 
-                    Row{
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "Discount:  ",
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(66,161,85)
+                            text = "Discount: ",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF3F51B5),
+                            fontWeight = FontWeight.SemiBold
                         )
-
                         Text(
                             text = AppUtil.calculateDiscount(product.price, product.actualPrice),
-                            color = Color(66,161,85),
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 18.sp
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color(0xFF3F51B5),
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 16.sp
+                            )
                         )
                         Icon(
                             imageVector = Icons.Default.ArrowDownward,
                             contentDescription = "Discount icon",
-                            tint = Color(66,161,85),
-                            modifier = Modifier.size(24.dp),
+                            tint = Color(0xFF3F51B5),
+                            modifier = Modifier
+                                .size(18.dp)
+                                .padding(start = 4.dp)
                         )
                     }
                 }
