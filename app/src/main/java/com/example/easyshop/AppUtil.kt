@@ -3,6 +3,7 @@ package com.example.easyshop
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
+import com.example.easyshop.model.ProductsModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
 import com.google.firebase.firestore.FieldValue
@@ -126,5 +127,25 @@ object AppUtil {
         val cleanActualPrice = actualPrice.replace(",", "").toIntOrNull() ?: return "0"
 
         return "${cleanPrice - cleanActualPrice}"
+    }
+
+    fun getProductById(
+        productId: String,
+        onResult: (ProductsModel?) -> Unit
+    ) {
+        Firebase.firestore.collection("data")
+            .document("stock").collection("products")
+            .document(productId).get()
+            .addOnSuccessListener { snapshot ->
+                if (snapshot != null && snapshot.exists()) {
+                    val product = snapshot.toObject(ProductsModel::class.java)
+                    onResult(product)
+                } else {
+                    onResult(null)
+                }
+            }
+            .addOnFailureListener {
+                onResult(null)
+            }
     }
 }

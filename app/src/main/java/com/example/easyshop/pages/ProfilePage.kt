@@ -1,5 +1,6 @@
 package com.example.easyshop.pages
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +28,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,11 +39,32 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.easyshop.GlobalNavController
+import com.example.easyshop.model.UserModel
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
+import com.google.firebase.firestore.firestore
 
 @Composable
 fun ProfilePage(navController: NavController){
+
+    val currentUser = remember { mutableStateOf<UserModel?>(null) }
+
+    LaunchedEffect(Unit) {
+        Firebase.firestore.collection("users")
+            .document(Firebase.auth.currentUser!!.uid)
+            .get()
+            .addOnSuccessListener { snapshot ->
+                if(snapshot.exists()){
+                    currentUser.value = snapshot.toObject(UserModel::class.java)
+                }else{
+                    Log.e("ProfilePage", "Snapshot not found")
+                }
+            }
+            .addOnFailureListener { err ->
+                Log.e("ProfilePage", "Failed to fetch user data store")
+            }
+    }
 
     Column(
         modifier = Modifier
@@ -70,15 +95,15 @@ fun ProfilePage(navController: NavController){
             )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
-                Text(text = "Rashim Sunar", fontWeight = FontWeight.Bold)
-                Text(text = "rashim@example.com", color = Color.Gray)
+                Text(text = currentUser.value?.name ?: "User" , fontWeight = FontWeight.Bold)
+                Text(text = currentUser.value?.email ?: "rashim@example.com", color = Color.Gray)
             }
         }
 
         Spacer(modifier = Modifier.height(24.dp))
 
         // Options List
-        AccountOptionItem("My Orders", Icons.Default.ShoppingCart)
+        AccountOptionItem("My Orders", Icons.Default.ShoppingCart, "ordersPage")
         AccountOptionItem("Addresses", Icons.Default.LocationOn)
         AccountOptionItem("Payment Methods", Icons.Default.Payment)
         AccountOptionItem("Settings", Icons.Default.Settings)
@@ -123,13 +148,16 @@ fun ProfilePage(navController: NavController){
 }
 
 @Composable
-fun AccountOptionItem(title: String, icon: ImageVector, iconTint: Color = Color.Blue) {
+fun AccountOptionItem(title: String, icon: ImageVector, route: String = "homePage", iconTint: Color = Color.Blue) {
     Card(
         elevation = CardDefaults.cardElevation(2.dp),
         shape = RoundedCornerShape(12.dp),
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 6.dp)
+            .clickable{
+                GlobalNavController.navController.navigate(route)
+            }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,

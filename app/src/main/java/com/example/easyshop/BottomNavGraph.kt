@@ -15,6 +15,7 @@ import com.example.easyshop.pages.FavouritePage
 import com.example.easyshop.pages.ProductDetailsPage
 import com.example.easyshop.pages.ProfilePage
 import com.example.easyshop.pages.CheckoutPage
+import com.example.easyshop.pages.OrdersPage
 import com.example.easyshop.screen.OrderSuccessScreen
 
 @Composable
@@ -53,6 +54,10 @@ fun BottomNavGraph(
         composable("order_success/{amount}") { backStackEntry ->
             val amount = backStackEntry.arguments?.getString("amount") ?: ""
             OrderSuccessScreen(totalAmount = amount)
+        }
+
+        composable("ordersPage"){
+            OrdersPage()
         }
     }
 }

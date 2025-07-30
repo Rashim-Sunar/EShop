@@ -170,10 +170,9 @@ fun CartItemView(productId: String, quantity: Long) {
                         )
                         Text(
                             text = AppUtil.calculateDiscount(product.price, product.actualPrice),
-                            style = MaterialTheme.typography.bodyMedium.copy(
+                            style = MaterialTheme.typography.bodyLarge.copy(
                                 color = Color(0xFF3F51B5),
                                 fontWeight = FontWeight.Bold,
-                                fontSize = 16.sp
                             )
                         )
                         Icon(
@@ -182,6 +181,7 @@ fun CartItemView(productId: String, quantity: Long) {
                             tint = Color(0xFF3F51B5),
                             modifier = Modifier
                                 .size(18.dp)
+
                                 .padding(start = 4.dp)
                         )
                     }
