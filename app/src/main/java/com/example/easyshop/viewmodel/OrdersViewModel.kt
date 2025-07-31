@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.easyshop.model.ProductsModel
+import com.google.firebase.firestore.FieldPath
 
 class OrdersViewModel : ViewModel() {
     private val auth = Firebase.auth
@@ -22,21 +23,7 @@ class OrdersViewModel : ViewModel() {
         private set
 
     init {
-        fetchProducts()  // fetch this before or along with orders
         fetchOrders()
-    }
-
-    private fun fetchProducts() {
-        firestore.collection("data").document("stock")
-            .collection("products")
-            .get()
-            .addOnSuccessListener { result ->
-                val map = result.documents.associate { doc ->
-                    val product = doc.toObject(ProductsModel::class.java)
-                    doc.id to product!!
-                }
-                productMap = map
-            }
     }
 
     private fun fetchOrders() {
@@ -48,8 +35,33 @@ class OrdersViewModel : ViewModel() {
             .addSnapshotListener { value, error ->
                 if (error != null) return@addSnapshotListener
                 if (value != null) {
-                    orders = value.toObjects(CheckoutModel::class.java)
+                    val fetchedOrders = value.toObjects(CheckoutModel::class.java)
+                    orders = fetchedOrders
+                    fetchProductsForOrders(fetchedOrders)
                 }
             }
+    }
+
+    private fun fetchProductsForOrders(orderList: List<CheckoutModel>) {
+        val productIds = orderList.map { it.item[0].productId }.distinct()
+
+        val allProductDocs = mutableMapOf<String, ProductsModel>()
+
+        val chunks = productIds.chunked(10) // Firestore allows max 10 for 'whereIn'
+        chunks.forEach { chunk ->
+            firestore.collection("data").document("stock").collection("products")
+                .whereIn(FieldPath.documentId(), chunk)
+                .get()
+                .addOnSuccessListener { snapshot ->
+                    for (doc in snapshot.documents) {
+                        val product = doc.toObject(ProductsModel::class.java)
+                        if (product != null) {
+                            allProductDocs[doc.id] = product
+                        }
+                    }
+                    // Update only once all chunks have been processed
+                    productMap = allProductDocs.toMap()
+                }
+        }
     }
 }
