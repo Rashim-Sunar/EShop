@@ -19,12 +19,13 @@ import com.example.easyshop.components.OrderedItemFromId
 import com.example.easyshop.viewmodel.OrdersViewModel
 
 @Composable
-fun OrdersPage(ordersViewModel: OrdersViewModel = viewModel()){
+fun OrdersPage(ordersViewModel: OrdersViewModel = viewModel()) {
     val orders = ordersViewModel.orders
+    val productMap = ordersViewModel.productMap
 
-    Column{
+    Column {
         Text(
-            text = "My orders",
+            text = "My Orders",
             fontSize = 20.sp,
             fontWeight = FontWeight.Normal,
             modifier = Modifier.padding(start = 12.dp, top = 16.dp, bottom = 12.dp)
@@ -36,12 +37,14 @@ fun OrdersPage(ordersViewModel: OrdersViewModel = viewModel()){
                 .background(Color(0xFFF5F5F5)),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(orders){  order ->
+            items(orders) { order ->
                 order.item.forEach { cartItem ->
-                    OrderedItemFromId(cartItem.productId)
+                    val product = productMap[cartItem.productId]
+                    if (product != null) {
+                        OrderedItemFromId(product)
+                    }
                 }
             }
         }
     }
 }
-
