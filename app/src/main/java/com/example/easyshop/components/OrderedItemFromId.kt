@@ -11,16 +11,19 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Divider
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -49,9 +52,12 @@ fun OrderedItemFromId(
 ) {
     var userRating by remember { mutableIntStateOf(0) }
     val userId = Firebase.auth.currentUser?.uid
+    var showReviewDialog by remember { mutableStateOf(false) }
+    var reviewText by remember { mutableStateOf("") }
 
     val context = LocalContext.current
 
+    // Fetch existing rating
     LaunchedEffect(product.id) {
         userId?.let {
             productsViewModel.getUserRatingForProduct(product.id, it) { rating ->
@@ -106,20 +112,18 @@ fun OrderedItemFromId(
                                 .padding(2.dp)
                                 .clickable {
                                     userRating = i
-                                   productsViewModel.saveRatingToFirestore(
-                                       productId = product.id,
-                                       userId = userId,
-                                       userRating = i,
-                                       comment = " ",
-                                       onSuccess = { },
-                                       onError = { e ->
-                                           Log.w(
-                                               "Rating Error:",
-                                               e
-                                           )
-                                           AppUtil.showToast(context, "Error giving ratings!!! $e")
-                                       }
-                                   )
+                                    productsViewModel.saveRatingToFirestore(
+                                        productId = product.id,
+                                        userId = userId,
+                                        userRating = i,
+                                        onSuccess = {
+                                            AppUtil.showToast(context, "Rating saved!")
+                                        },
+                                        onError = { e ->
+                                            Log.w("Rating Error", e)
+                                            AppUtil.showToast(context, "Error saving rating: ${e.message}")
+                                        }
+                                    )
                                 }
                         )
                     }
@@ -129,9 +133,12 @@ fun OrderedItemFromId(
                     Text(
                         text = "Write a Review",
                         fontSize = 14.sp,
-                        color = Color.Blue
+                        color = Color.Blue,
+                        modifier = Modifier.clickable {
+                            showReviewDialog = true
+                        }
                     )
-                }else{
+                } else {
                     Text(
                         text = "Rate this product now",
                         fontSize = 14.sp,
@@ -141,12 +148,67 @@ fun OrderedItemFromId(
             }
         }
 
-        Divider(
+        HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            color = Color.LightGray,
-            thickness = 1.dp
+            thickness = 1.dp,
+            color = Color.LightGray
         )
+
+        // 📝 Review Dialog
+        if (showReviewDialog) {
+            AlertDialog(
+                onDismissRequest = { showReviewDialog = false },
+                confirmButton = {
+                    Text(
+                        text = "Submit",
+                        color = Color.Blue,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .clickable {
+                                if (userId != null) {
+                                    productsViewModel.saveReviewToFirestore(
+                                        productId = product.id,
+                                        userId = userId,
+                                        comment = reviewText,
+                                        onSuccess = {
+                                            showReviewDialog = false
+                                            reviewText = ""
+                                            AppUtil.showToast(context, "Review submitted")
+                                        },
+                                        onError = { e ->
+                                            AppUtil.showToast(context, "Error: ${e.message}")
+                                        }
+                                    )
+                                }
+                            }
+                    )
+                },
+                dismissButton = {
+                    Text(
+                        text = "Cancel",
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .clickable {
+                                showReviewDialog = false
+                            }
+                    )
+                },
+                title = { Text(text = "Write a Review") },
+                text = {
+                    Column {
+                        Text(text = "You rated this product $userRating stars.")
+                        Spacer(modifier = Modifier.height(8.dp))
+                        OutlinedTextField(
+                            value = reviewText,
+                            onValueChange = { reviewText = it },
+                            placeholder = { Text("Write your review here...") },
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
+                }
+            )
+        }
     }
 }

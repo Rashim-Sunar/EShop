@@ -23,6 +23,8 @@ fun OrdersPage(ordersViewModel: OrdersViewModel = viewModel()) {
     val orders = ordersViewModel.orders
     val productMap = ordersViewModel.productMap
 
+    val allCartItems = orders.flatMap { it.item }
+
     Column {
         Text(
             text = "My Orders",
@@ -37,14 +39,22 @@ fun OrdersPage(ordersViewModel: OrdersViewModel = viewModel()) {
                 .background(Color(0xFFF5F5F5)),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            items(orders) { order ->
-                order.item.forEach { cartItem ->
-                    val product = productMap[cartItem.productId]
-                    if (product != null) {
-                        OrderedItemFromId(product)
-                    }
+//            items(orders) { order ->
+//                order.item.forEach { cartItem ->
+//                    val product = productMap[cartItem.productId]
+//                    if (product != null) {
+//                        OrderedItemFromId(product)
+//                    }
+//                }
+//            }
+
+            items(allCartItems) { cartItem ->
+                val product = productMap[cartItem.productId]
+                if (product != null) {
+                    OrderedItemFromId(product)
                 }
             }
+
         }
     }
 }

@@ -9,11 +9,11 @@ import com.google.firebase.firestore.firestore
 class ProductsViewModel : ViewModel() {
     private val firestore = Firebase.firestore
 
+    // Save or update rating only (without comment)
     fun saveRatingToFirestore(
         productId: String,
         userId: String?,
         userRating: Int,
-        comment: String,
         onSuccess: () -> Unit,
         onError: (Exception) -> Unit
     ) {
@@ -37,7 +37,7 @@ class ProductsViewModel : ViewModel() {
             val currentBreakdown = product.ratingBreakdown.toMutableMap()
             var currentTotal = product.totalRatings
 
-            // If the user has rated before, remove old rating first
+            // Remove previous rating if exists
             if (reviewSnapshot.exists()) {
                 val previousReview = reviewSnapshot.toObject(ReviewModel::class.java)
                 val oldRating = previousReview?.rating ?: 0
@@ -45,7 +45,7 @@ class ProductsViewModel : ViewModel() {
                 currentTotal -= 1
             }
 
-            // Now add the new rating
+            // Add new rating
             currentBreakdown["$userRating"] = (currentBreakdown["$userRating"] ?: 0) + 1
             val newTotal = currentTotal + 1
 
@@ -57,16 +57,18 @@ class ProductsViewModel : ViewModel() {
             }
             val newAverage = if (newTotal > 0) totalScore.toDouble() / newTotal else 0.0
 
-            // Save the new/updated review
+            // Preserve existing comment if exists
+            val existingComment = reviewSnapshot.toObject(ReviewModel::class.java)?.comment ?: ""
+
             val newReview = ReviewModel(
                 userId = userId,
                 rating = userRating,
-                comment = comment,
+                comment = existingComment,
                 timestamp = System.currentTimeMillis()
             )
-            transaction.set(userReviewRef, newReview)  // using userId as doc ID ensures one review per user
+            transaction.set(userReviewRef, newReview)
 
-            // Update product fields
+            // Update product ratings
             transaction.update(productRef, mapOf(
                 "averageRating" to newAverage,
                 "totalRatings" to newTotal,
@@ -79,13 +81,49 @@ class ProductsViewModel : ViewModel() {
         }
     }
 
-    // Fetch the rating for given product by current user
+    // Save or update only the comment (no effect on rating calculations)
+    fun saveReviewToFirestore(
+        productId: String,
+        userId: String?,
+        comment: String,
+        onSuccess: () -> Unit,
+        onError: (Exception) -> Unit
+    ) {
+        if (userId == null) {
+            onError(IllegalArgumentException("User ID cannot be null"))
+            return
+        }
+
+        val productRef = firestore.collection("data").document("stock")
+            .collection("products").document(productId)
+
+        val userReviewRef = productRef.collection("reviews").document(userId)
+
+        userReviewRef.get().addOnSuccessListener { snapshot ->
+            val currentReview = snapshot.toObject(ReviewModel::class.java)
+            if (currentReview != null) {
+                val updatedReview = currentReview.copy(
+                    comment = comment,
+                    timestamp = System.currentTimeMillis()
+                )
+                userReviewRef.set(updatedReview)
+                    .addOnSuccessListener { onSuccess() }
+                    .addOnFailureListener { onError(it) }
+            } else {
+                // No existing rating yet; optionally, you can avoid saving a comment without a rating
+                onError(Exception("Please rate the product before adding a comment."))
+            }
+        }.addOnFailureListener {
+            onError(it)
+        }
+    }
+
     fun getUserRatingForProduct(
         productId: String,
         userId: String,
         onResult: (Int?) -> Unit
     ) {
-        val reviewRef = Firebase.firestore
+        val reviewRef = firestore
             .collection("data").document("stock")
             .collection("products").document(productId)
             .collection("reviews").document(userId)
@@ -99,5 +137,5 @@ class ProductsViewModel : ViewModel() {
                 onResult(null)
             }
     }
-
 }
+
